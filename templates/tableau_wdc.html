@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>InsightBot WDC</title>
+  <script src="https://connectors.tableau.com/libs/tableauwdc-2.3.latest.js"></script>
+  <script>
+    (function() {
+      var myConnector = tableau.makeConnector();
+
+      // Define schema
+      myConnector.getSchema = function(schemaCallback) {
+        var cols = [
+          { id: "url", dataType: tableau.dataTypeEnum.string },
+          { id: "title", dataType: tableau.dataTypeEnum.string },
+          { id: "body", dataType: tableau.dataTypeEnum.string },
+          { id: "published", dataType: tableau.dataTypeEnum.datetime },
+          { id: "length", dataType: tableau.dataTypeEnum.int },
+          { id: "source", dataType: tableau.dataTypeEnum.string }
+        ];
+
+        var tableSchema = {
+          id: "articles",
+          alias: "InsightBot Articles",
+          columns: cols
+        };
+
+        schemaCallback([tableSchema]);
+      };
+
+      // Fetch data from Flask JSON endpoint
+      myConnector.getData = function(table, doneCallback) {
+        fetch("http://127.0.0.1:5000/api/articles")
+          .then(resp => resp.json())
+          .then(data => {
+            // Convert nulls to JS null
+        data = data.map(r => {
+          if (!r.published) r.published = null;
+          return r;
+        });
+        table.appendRows(data);
+        doneCallback();
+      });
+
+      };
+
+      tableau.registerConnector(myConnector);
+
+      // Load on button click
+      document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("submitButton").addEventListener("click", function() {
+          tableau.connectionName = "InsightBot Articles Feed";
+          tableau.submit();
+        });
+      });
+    })();
+  </script>
+</head>
+<body>
+  <h2>InsightBot Web Data Connector</h2>
+  <button id="submitButton">Load Data in Tableau</button>
+</body>
+</html>

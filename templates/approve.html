@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Approval - InsightBot</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">InsightBot Admin</a>
+      <div>
+        {% if current_user.is_authenticated %}
+          <span class="text-white me-3">Hi, {{ current_user.username }}</span>
+          <a class="btn btn-sm btn-secondary" href="{{ url_for('index') }}">Back to Home</a>
+          <a class="btn btn-sm btn-outline-light" href="{{ url_for('logout') }}">Logout</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2>Pending Users</h2>
+    {% if users %}
+      <ul class="list-group">
+        {% for u in users %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ u.username }}
+            <a href="/admin/approve/{{ u.id }}" class="btn btn-sm btn-success">Approve</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No pending users.</p>
+    {% endif %}
+  </div>
+
+</body>
+</html>
